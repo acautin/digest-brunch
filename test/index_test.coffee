@@ -323,9 +323,17 @@ describe 'Digest', ->
   describe 'manifest', ->
     beforeEach ->
       setupFakeFileSystem()
+      digest = new Digest(
+        env: ['production']
+        paths:
+          public: path.join('test', 'public')
+        plugins:
+          digest:
+            referenceFiles: /\.(html|css)$/,
+            manifest: 'test/public/manifest.json'
+      )
 
     it 'outputs a manifest', ->
-      digest.options.manifest = 'test/public/manifest.json'
       digest.onCompile()
       manifest = JSON.parse(readDigestFile('manifest.json'))
       expect(Object.keys(manifest)).to.have.length Object.keys(FIXTURES_AND_DIGESTS).length
