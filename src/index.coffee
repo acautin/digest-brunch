@@ -38,6 +38,10 @@ class Digest
     cfg = @config.plugins?.digest ? {}
     @options[k] = cfg[k] for k of cfg
 
+    if @options.manifest
+      #Initialize empty manifest
+      fs.writeFileSync(@options.manifest, "{}")
+
     # Ensure that the pattern RegExp is global
     needle = @options.pattern.source or @options.pattern or ''
     flags = 'g'
@@ -190,13 +194,12 @@ class Digest
   _writeManifestFile: (renameMap) ->
     if not @options.manifest
       return
-    manifest = {}
+    manifest = JSON.parse(fs.readFileSync(@options.manifest, 'utf8'))
     for file, hash of renameMap when hash
       relative = pathlib.relative(@publicFolder, file).replace(/\\/g, '/')
       rename = @_addHashToPath relative, hash
       manifest[relative] = rename
     fs.writeFileSync(@options.manifest, JSON.stringify(manifest, null, 4))
-
 
 Digest.logger = console
 
